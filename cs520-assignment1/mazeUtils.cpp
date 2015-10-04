@@ -114,18 +114,40 @@ void generateMazes(int nMazes){
 	}
 }
 
-void loadMaze(int id){
+bool** loadMaze(int id){
 	ifstream ifs;
 	ostringstream os;
-	os << "mazes/maze" << id << ".txt";
+	os << "C:/Users/Viet Nguyen/code/cs520-assignment1/x64/Debug/mazes/maze" << id << ".txt";
+	//os << "mazes/maze" << id << ".txt";
 	string filename = os.str();
 	ifs.open(filename.c_str(), std::ifstream::in);
 
+	bool** maze = new bool*[SIZE];
+	for (int i = 0; i < SIZE; i++){
+		maze[i] = new bool[SIZE];
+	}
+
+	int row = 0; 
+	int col = 0;
 	char c = ifs.get();
 	while (ifs.good()){
-		cout << c;
+		if (c == 'x'){
+			maze[row][col] = false;
+			col++;
+		}
+		else if (c == 'o'){
+			maze[row][col] = true;
+			col++;
+		}
+		else if (c == '\n'){
+			row++;
+			col = 0;
+		}
+		//cout << c;
 		c = ifs.get();
 	}
+
+
 	/*
 	for (int iRow = 0; iRow < h; iRow++){
 		for (int iCol = 0; iCol < w; iCol++){
@@ -136,4 +158,6 @@ void loadMaze(int id){
 	}
 	*/
 	ifs.close();
+	return maze;
+
 }
