@@ -13,6 +13,8 @@ public:
 	int h;  // heuristic, estimates the goal distance 
 	int f;  // f = g+h
 	State* tree;
+	int treeRow;
+	int treeCol;
 	int search;
 	int cost[4]; // cost of 4 actions: left, right, up, down
 
@@ -23,6 +25,8 @@ public:
 		h = 0;
 		f = 0;
 		search = 0;
+		treeRow = 0;
+		treeCol = 0;
 		cost[0] = cost[1] = cost[2] = cost[3] = 1;
 	}
 	void setF(int newF){

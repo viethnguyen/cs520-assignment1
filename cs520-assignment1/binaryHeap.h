@@ -17,16 +17,18 @@ private:
 	int left(int parent);
 	int right(int parent);
 	int parent(int child);
+
+public:
 	void heapifyup(int index);
 	void heapifydown(int index);
-public:
 	BinaryHeap(){}
 	void insert(State element);
 	void deleteMin();
 	State extractMin();
 	void displayHeap();
 	int size();
-
+	int findStateByPosition(int row, int col);
+	void modifyF(int index, int f);
 };
 
 int BinaryHeap::size(){
@@ -121,6 +123,23 @@ void BinaryHeap::heapifydown(int in)
 		heap[child] = temp;
 		heapifydown(child);
 	}
+}
+
+int BinaryHeap::findStateByPosition(int row, int col){
+	vector<State>::iterator it = heap.begin();
+	int index = 0;
+	while (it != heap.end()){
+		if (it->row == row && it->col == col){
+			return index;
+		}
+		it++;
+	}
+	return -1; 
+}
+
+void BinaryHeap::modifyF(int index, int f){
+	heap[index].setF(f);
+	heapifyup(index);
 }
 
 int testStateBinaryHeap(){
