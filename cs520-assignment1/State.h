@@ -12,7 +12,7 @@ public:
 	int g;	// the length of the shortest path from the start state 
 	int h;  // heuristic, estimates the goal distance 
 	int f;  // f = g+h
-	State* tree;
+	//State* tree;
 	int treeRow;
 	int treeCol;
 	int search;

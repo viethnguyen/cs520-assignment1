@@ -10,10 +10,11 @@ const int INF = 65536;
 
 void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<State>* CLOSED, int counter, int size){
 	cout << "Running computePath..." << endl;
-	while (S[goal->row][goal->col].g > (OPEN->extractMin()).f){
+	while (OPEN->size() != 0 && S[goal->row][goal->col].g > (OPEN->extractMin()).f){
 		State s = OPEN->extractMin();
 		int oldRow = s.row;
 		int oldCol = s.col;
+		cout << "Investigating: (" << oldRow << ", " << oldCol << ")" << endl;
 		OPEN->deleteMin();
 		CLOSED->push_back(s);
 		//4 possible moves: left, right, up, down
@@ -39,9 +40,9 @@ void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<Sta
 				S[oldRow][oldCol].cost[i] = INF;
 			}
 
-			if (S[newRow][newCol].g > s.g + s.cost[i]){
-				S[newRow][newCol].g = s.g + s.cost[i];
-				S[newRow][newCol].tree = &s;
+			if (S[newRow][newCol].g > S[oldRow][oldCol].g + S[oldRow][oldCol].cost[i]){
+				S[newRow][newCol].g = S[oldRow][oldCol].g + S[oldRow][oldCol].cost[i];
+				//S[newRow][newCol].tree = &s;
 				S[newRow][newCol].treeRow = s.row;
 				S[newRow][newCol].treeCol = s.col;
 				int index = OPEN->findStateByPosition(newRow, newCol);
@@ -68,10 +69,10 @@ struct coord{
 int direction(coord* from, coord* to){
 	if (from->row == to->row){
 		if (from->col == to->col - 1){
-			return 0;
+			return 1;
 		}
 		if (from->col == to->col + 1){
-			return 1;
+			return 0;
 		}
 	}
 	else if (from->col == to->col){
@@ -198,8 +199,8 @@ int main(){
 	start.row = 1;
 	start.col = 0;
 	State goal;
-	goal.row = 0;
-	goal.col = 2;
+	goal.row = 60;
+	goal.col = 60;
 	if (maze[start.row][start.col] == false || maze[goal.row][goal.col] == false){
 		cout << "Invalid settings" << endl;
 		return -1;
@@ -207,5 +208,10 @@ int main(){
 	repeatedForwardAStar(maze, 101, &start, &goal);
 	
 	// generateMazes(50);
+
+	for (int i = 0; i < 101; i++){
+		delete[] maze[i];
+	}
+	delete[] maze;
 	return 0; 
 }

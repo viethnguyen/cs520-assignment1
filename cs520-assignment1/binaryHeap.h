@@ -43,13 +43,13 @@ void BinaryHeap::insert(State element){
 void BinaryHeap::deleteMin(){
 	if (heap.size() == 0)
 	{
-		cout << "Heap is empty!" << endl;
+		//cout << "Heap is empty!" << endl;
 		return;
 	}
 	heap[0] = heap.at(heap.size() - 1);
 	heap.pop_back();
 	heapifydown(0);
-	cout << "Element deleted" << endl;
+	//cout << "Element deleted" << endl;
 }
 
 State BinaryHeap::extractMin(){
