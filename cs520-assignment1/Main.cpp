@@ -7,6 +7,10 @@
 using namespace std;
 
 const int INF = 65536;
+const int LEFT = 0;
+const int RIGHT = 1;
+const int UP = 2;
+const int DOWN = 3;
 
 void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<State>* CLOSED, int counter, int size){
 	cout << "Running computePath..." << endl;
@@ -14,7 +18,7 @@ void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<Sta
 		State s = OPEN->extractMin();
 		int oldRow = s.row;
 		int oldCol = s.col;
-		cout << "Investigating: (" << oldRow << ", " << oldCol << ")" << endl;
+		cout << "Expand state: (" << oldRow << ", " << oldCol << ")" << endl;
 		OPEN->deleteMin();
 		CLOSED->push_back(s);
 		//4 possible moves: left, right, up, down
@@ -34,10 +38,6 @@ void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<Sta
 			if (S[newRow][newCol].search < counter){
 				S[newRow][newCol].g = INF;
 				S[newRow][newCol].search = counter;
-			}
-
-			if (maze[newRow][newCol] == false){
-				S[oldRow][oldCol].cost[i] = INF;
 			}
 
 			if (S[newRow][newCol].g > S[oldRow][oldCol].g + S[oldRow][oldCol].cost[i]){
@@ -65,22 +65,42 @@ struct coord{
 	int col;
 };
 
+// Suppose this state (row, col) is blocked, update all cost going into and out of this state to INF
+void updateCostToInf(State** S, int size, int row, int col){
+	if (row > 0){
+		S[row - 1][col].cost[DOWN] = INF;
+		S[row][col].cost[UP] = INF;
+	}
+	if (row < size - 1){
+		S[row + 1][col].cost[UP] = INF;
+		S[row][col].cost[DOWN] = INF;
+	}
+	if (col > 0){
+		S[row][col - 1].cost[RIGHT] = INF;
+		S[row][col].cost[LEFT] = INF;
+	}
+	if (col < size - 1){
+		S[row][col + 1].cost[LEFT] = INF;
+		S[row][col].cost[RIGHT] = INF;
+	}
+}
+
 // 0: left, 1: right, 2: up, 3: down; -1: invalid
 int direction(coord* from, coord* to){
 	if (from->row == to->row){
 		if (from->col == to->col - 1){
-			return 1;
+			return RIGHT;
 		}
 		if (from->col == to->col + 1){
-			return 0;
+			return LEFT;
 		}
 	}
 	else if (from->col == to->col){
 		if (from->row == to->row - 1){
-			return 3;
+			return DOWN;
 		}
 		if (from->row == to->row + 1){
-			return 2;
+			return UP;
 		}
 	}
 	return -1;
@@ -153,15 +173,30 @@ void repeatedForwardAStar(bool** maze, int size, State* start, State* goal){
 		coord current = path.top();
 		path.pop();
 		while (!path.empty()){
+			// watch 4 states around this current state to update cost, if any 
+			if (current.row > 0 && !maze[current.row - 1][current.col]){
+				updateCostToInf(S, size, current.row - 1, current.col);
+			}
+			if (current.row < size - 1 && !maze[current.row + 1][current.col]){
+				updateCostToInf(S, size, current.row + 1, current.col);
+			}
+			if (current.col > 0 && !maze[current.row][current.col-1]){	
+				updateCostToInf(S, size, current.row, current.col-1);
+			}
+			if (current.col < size - 1 && !maze[current.row][current.col+1]){
+				updateCostToInf(S, size, current.row, current.col+1);
+			}
+
 			coord next = path.top();
 			path.pop();
-			cout << "\tMove to: (" << next.row << ", " << next.col << ")" << endl;
+			cout << "\tTried to move to: (" << next.row << ", " << next.col << ")... " ;
 			int dir = direction(&current, &next);
 			if (S[current.row][current.col].cost[dir] > 1){
+				cout << "BLOCKED" << endl;
 				start = &S[current.row][current.col];
-				cout << "\tMove start to: (" << current.row << ", " << current.col << ")" << endl;
 				break;
 			}
+			cout << "OK! Moved start to: (" << next.row << ", " << next.col << ")" << endl;
 			current = next;
 		}
 		if (path.empty()){
@@ -197,10 +232,10 @@ int main(){
 	bool** maze = loadMaze(1);
 	State start;
 	start.row = 1;
-	start.col = 0;
+	start.col = 2;
 	State goal;
-	goal.row = 60;
-	goal.col = 60;
+	goal.row = 100;
+	goal.col = 100;
 	if (maze[start.row][start.col] == false || maze[goal.row][goal.col] == false){
 		cout << "Invalid settings" << endl;
 		return -1;
