@@ -5,6 +5,8 @@
 
 using namespace std;
 
+const int C_MULTIPLIER = 300;
+
 class State{
 public:
 	int row;
@@ -32,6 +34,9 @@ public:
 	void setF(int newF){
 		f = newF;
 	}
+	void setH(int newH){
+		h = newH;
+	}
 	void print(){
 		cout << "State: " << endl;
 		cout << "\trow: " << row << endl;
@@ -51,6 +56,14 @@ State nullState(){
 
 bool compareStateF(State* a, State* b){
 	return a->f > b->f;
+}
+
+bool compareStateFGreaterG(State* a, State* b){
+	return (C_MULTIPLIER*a->f - a->g) > (C_MULTIPLIER*b->f - b->g);
+}
+
+bool compareStateFSmallerG(State* a, State* b){
+	return (C_MULTIPLIER*a->f + a->g) > (C_MULTIPLIER*b->f + b->g);
 }
 
 bool compareStatePos(State* a, State* b){

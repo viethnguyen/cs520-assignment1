@@ -12,6 +12,8 @@ const int RIGHT = 1;
 const int UP = 2;
 const int DOWN = 3;
 
+int nExpandedStates = 0;
+
 void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<State>* CLOSED, int counter, int size){
 	cout << "Running computePath..." << endl;
 	while (OPEN->size() != 0 && S[goal->row][goal->col].g > (OPEN->extractMin()).f){
@@ -19,8 +21,10 @@ void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<Sta
 		int oldRow = s.row;
 		int oldCol = s.col;
 		cout << "Expand state: (" << oldRow << ", " << oldCol << ")" << endl;
+		nExpandedStates++;
 		OPEN->deleteMin();
 		CLOSED->push_back(s);
+
 		//4 possible moves: left, right, up, down
 		int incRows[] = { 0, 0, -1, 1 };
 		int incCols[] = { -1, 1, 0, 0 };
@@ -28,7 +32,7 @@ void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<Sta
 			int incRow = incRows[i];
 			int incCol = incCols[i];
 			int newRow = s.row + incRow;
-			int newCol = s.col + incCol; 
+			int newCol = s.col + incCol;
 
 			// check if valid 
 			if (newRow < 0 || newRow >= size || newCol < 0 || newCol >= size){
@@ -42,25 +46,37 @@ void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<Sta
 
 			if (S[newRow][newCol].g > S[oldRow][oldCol].g + S[oldRow][oldCol].cost[i]){
 				S[newRow][newCol].g = S[oldRow][oldCol].g + S[oldRow][oldCol].cost[i];
-				//S[newRow][newCol].tree = &s;
 				S[newRow][newCol].treeRow = s.row;
 				S[newRow][newCol].treeCol = s.col;
 				int index = OPEN->findStateByPosition(newRow, newCol);
 				if (index != -1){
-					OPEN->modifyF(index, S[newRow][newCol].g + manhattanDistance(&S[newRow][newCol], goal));  
+					if (S[newRow][newCol].h == 0){
+						S[newRow][newCol].h = manhattanDistance(&S[newRow][newCol], goal);
+					}
+					OPEN->modifyF(index, S[newRow][newCol].g + S[newRow][newCol].h);
+					OPEN->heapifyup(index);
 				}
 				else{
-					S[newRow][newCol].f = S[newRow][newCol].g + manhattanDistance(&S[newRow][newCol], goal);
+					if (S[newRow][newCol].h == 0){
+						S[newRow][newCol].h = manhattanDistance(&S[newRow][newCol], goal);
+					}
+					S[newRow][newCol].f = S[newRow][newCol].g + S[newRow][newCol].h;
 					OPEN->insert(S[newRow][newCol]);
 				}
 			}
 
 		}
 	}
+
+	// Adaptive A*: Update h 
+	list<State>::iterator it;
+	for (it = CLOSED->begin(); it != CLOSED->end(); it++){
+		S[it->row][it->col].h = S[goal->row][goal->col].g - S[it->row][it->col].g;
+	}
 }
 
 
-struct coord{
+struct coord{	
 	int row;
 	int col;
 };
@@ -106,7 +122,6 @@ int direction(coord* from, coord* to){
 	return -1;
 }
 
-
 void repeatedForwardAStar(bool** maze, int size, State* start, State* goal){
 	int counter = 0;
 	State** S = new State*[size];
@@ -121,14 +136,19 @@ void repeatedForwardAStar(bool** maze, int size, State* start, State* goal){
 		}
 	}
 
+	//S[goal->row][goal->col].g = INF;
+
 	while (!compareStatePos(start, goal)){
+		S[goal->row][goal->col].g = INF;
+		S[goal->row][goal->col].search = counter;
+
 		counter = counter + 1;
 		S[start->row][start->col].g = 0;
 		S[start->row][start->col].h = manhattanDistance(start, goal);
+		//S[start->row][start->col].h = S[goal->row][goal->col].g - S[start->row][start->col].g;
 		S[start->row][start->col].f = start->g + start->h;
 		S[start->row][start->col].search = counter;
-		S[goal->row][goal->col].g = INF;
-		S[goal->row][goal->col].search = counter;
+		
 		BinaryHeap OPEN;
 		list<State> CLOSED;
 		OPEN.insert(S[start->row][start->col]);
@@ -160,15 +180,6 @@ void repeatedForwardAStar(bool** maze, int size, State* start, State* goal){
 			path.push(curCoord);
 		}
 
-		//State* tmp = &S[goal->row][goal->col];
-		//while (!compareStatePos(tmp, &S[start->row][start->col])){
-		//	tmp = tmp->tree;
-		//	curCoord.row = tmp->row;
-		//	curCoord.col = tmp->col;
-		//	path.push(curCoord);
-		//}
-		//delete tmp;
-		
 		//move the agent along the resulting path from sstart to sgoal 
 		coord current = path.top();
 		path.pop();
@@ -206,16 +217,6 @@ void repeatedForwardAStar(bool** maze, int size, State* start, State* goal){
 	}
 
 	cout << "I reached the target" << endl;
-	// check maze 
-	//for (int r = 0; r < size; r++){
-	//	for (int c = 0; c < size; c++){
-	//		if (maze[r][c] == true)
-	//			cout << "o";
-	//		else
-	//			cout << "x";
-	//	}
-	//	cout << "\n";
-	//}
 
 
 	// clean up 
@@ -234,8 +235,8 @@ int main(){
 	start.row = 1;
 	start.col = 2;
 	State goal;
-	goal.row = 100;
-	goal.col = 100;
+	goal.row = 25;
+	goal.col = 25;
 	if (maze[start.row][start.col] == false || maze[goal.row][goal.col] == false){
 		cout << "Invalid settings" << endl;
 		return -1;
@@ -244,6 +245,7 @@ int main(){
 	
 	// generateMazes(50);
 
+	cout << "Number of expanded states: " << nExpandedStates << endl;
 	for (int i = 0; i < 101; i++){
 		delete[] maze[i];
 	}
