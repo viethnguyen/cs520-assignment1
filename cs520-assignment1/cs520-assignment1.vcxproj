@@ -143,10 +143,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="binaryHeap.cpp" />
     <ClCompile Include="mazeUtils.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="State.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="binaryHeap.h" />

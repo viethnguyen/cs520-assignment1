@@ -104,6 +104,12 @@ void generateMaze(int id){
 	}
 	// printMaze(maze, SIZE, SIZE);		
 	saveMaze(maze, SIZE, SIZE, id);
+
+	// clean up 
+	for (int i = 0; i < SIZE; i++){
+		delete[] maze[i];
+	}
+	delete[] maze;
 }
 
 void generateMazes(int nMazes){
