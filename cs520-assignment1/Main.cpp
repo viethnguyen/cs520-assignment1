@@ -17,12 +17,12 @@ const int DOWN = 3;
 
 int nExpandedStates = 0;
 
-void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<State>* CLOSED, int counter, int size){
+void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<State>* CLOSED, int counter, int size, bool adaptive){
 	cout << "Running computePath..." << endl;
 	while (OPEN->size() != 0 && S[goal->row][goal->col].g > (OPEN->extractMin()).f){
 		State s = OPEN->extractMin();
 		int oldRow = s.row;
-		int oldCol = s.col;
+		int oldCol = s.col;     
 		cout << "Expand state: (" << oldRow << ", " << oldCol << ")" << endl;
 		nExpandedStates++;
 		OPEN->deleteMin();
@@ -72,10 +72,13 @@ void computePath(State** S, bool** maze, State *goal, BinaryHeap* OPEN, list<Sta
 	}
 
 	// Adaptive A*: Update h 
-	list<State>::iterator it;
-	for (it = CLOSED->begin(); it != CLOSED->end(); it++){
+	if (adaptive){
+		list<State>::iterator it;
+		for (it = CLOSED->begin(); it != CLOSED->end(); it++){
 		S[it->row][it->col].h = S[goal->row][goal->col].g - S[it->row][it->col].g;
+		}
 	}
+	
 }
 
 
@@ -125,7 +128,7 @@ int direction(coord* from, coord* to){
 	return -1;
 }
 
-void repeatedForwardAStar(bool** maze, int size, State* start, State* goal){
+void repeatedForwardAStar(bool** maze, int size, State* start, State* goal, bool adaptive){
 	int counter = 0;
 	State** S = new State*[size];
 	for (int i = 0; i < size; i++){
@@ -153,7 +156,7 @@ void repeatedForwardAStar(bool** maze, int size, State* start, State* goal){
 		list<State> CLOSED;
 
 		OPEN.insert(S[start->row][start->col]);
-		computePath(S, maze, goal, &OPEN, &CLOSED, counter, size);
+		computePath(S, maze, goal, &OPEN, &CLOSED, counter, size, adaptive);
 
 		if (OPEN.size() == 0){
 			cout << "I cannot reach the target\n";
@@ -256,7 +259,7 @@ void repeatedBackwardAStar(bool** maze, int size, State* start, State* goal){
 		list<State> CLOSED;
 
 		OPEN.insert(S[goal->row][goal->col]);
-		computePath(S, maze, start, &OPEN, &CLOSED, counter, size);
+		computePath(S, maze, start, &OPEN, &CLOSED, counter, size, false);
 
 		if (OPEN.size() == 0){
 			cout << "I cannot reach the target\n";
@@ -325,39 +328,42 @@ void repeatedBackwardAStar(bool** maze, int size, State* start, State* goal){
 int main(){
 	ofstream outfile;
 	ostringstream os;
-	os << "C:/Users/Viet Nguyen/code/cs520-assignment1/x64/Debug/compareForwardBackward.txt";
+	os << "C:/Users/Viet Nguyen/code/cs520-assignment1/x64/Debug/compareAdaptive.txt";
 	string filename = os.str();
 	outfile.open(filename.c_str());
 
 	int nTrials = 10;
-
+	int nSuccessTrials = 0; 
 	bool** maze = loadMaze(1);
 	
 	srand(time(NULL));
 	int SIZE = 101;
-	for (int i = 0; i < nTrials; i++){
+	while (nSuccessTrials < nTrials){
 		State start, goal;
 		start.row = rand() % SIZE;
 		start.col = rand() % SIZE;
 		goal.row = rand() % SIZE;
 		goal.col = rand() % SIZE;
-		outfile << "=== Trial " << i + 1 << " ===" << endl;
-		cout << "Find path from (" << ") to (" << ")" << endl;
+		outfile << "=== Trial " << nSuccessTrials + 1 << " ===" << endl;
+		outfile << "Find path from (" << start.row << "," << start.col << ") to (" << goal.row << "," << goal.col << ")" << endl;
 		if (maze[start.row][start.col] == false || maze[goal.row][goal.col] == false){
-			outfile << "Invalid: Either start state or end state is blocked." << endl;
+			cout  << "Invalid: Either start state or end state is blocked." << endl;
 			continue;
 		}
 		nExpandedStates = 0;
-		repeatedForwardAStar(maze, SIZE, &start, &goal);
+		repeatedForwardAStar(maze, SIZE, &start, &goal, false);
 		outfile << "Repeated Forward A*: Number of expanded states: " << nExpandedStates << endl;
 		
 		nExpandedStates = 0;
-		repeatedBackwardAStar(maze, SIZE, &start, &goal);
-		outfile << "Repeated Backward A*: Number of expanded states: " << nExpandedStates << endl;
+		repeatedForwardAStar(maze, SIZE, &start, &goal, true);
+		outfile << "Adaptive A*: Number of expanded states: " << nExpandedStates << endl;
 
+		nSuccessTrials++;
 	}
 
-	
+	// clean up 
+	outfile.close();
+
 	for (int i = 0; i < 101; i++){
 		delete[] maze[i];
 	}
