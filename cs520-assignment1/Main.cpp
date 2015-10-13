@@ -326,13 +326,13 @@ void repeatedBackwardAStar(bool** maze, int size, State* start, State* goal){
 }
 
 int main(){
-	ofstream outfile;
-	ostringstream os;
-	os << "C:/Users/Viet Nguyen/code/cs520-assignment1/x64/Debug/compareAdaptive.txt";
-	string filename = os.str();
-	outfile.open(filename.c_str());
+	//ofstream outfile;
+	//ostringstream os;
+	//os << "C:/Users/Viet Nguyen/code/cs520-assignment1/x64/Debug/compareAdaptive.txt";
+	//string filename = os.str();
+	//outfile.open(filename.c_str());
 
-	int nTrials = 10;
+	int nTrials = 1;
 	int nSuccessTrials = 0; 
 	bool** maze = loadMaze(1);
 	
@@ -340,29 +340,34 @@ int main(){
 	int SIZE = 101;
 	while (nSuccessTrials < nTrials){
 		State start, goal;
-		start.row = rand() % SIZE;
-		start.col = rand() % SIZE;
-		goal.row = rand() % SIZE;
-		goal.col = rand() % SIZE;
-		outfile << "=== Trial " << nSuccessTrials + 1 << " ===" << endl;
-		outfile << "Find path from (" << start.row << "," << start.col << ") to (" << goal.row << "," << goal.col << ")" << endl;
+		//start.row = rand() % SIZE;
+		//start.col = rand() % SIZE;
+		//goal.row = rand() % SIZE;
+		//goal.col = rand() % SIZE;
+		start.row = 71;
+		start.col =	 51;
+		goal.row = 65;
+		goal.col = 96;
+		//outfile << "=== Trial " << nSuccessTrials + 1 << " ===" << endl;
+		//outfile << "Find path from (" << start.row << "," << start.col << ") to (" << goal.row << "," << goal.col << ")" << endl;
 		if (maze[start.row][start.col] == false || maze[goal.row][goal.col] == false){
 			cout  << "Invalid: Either start state or end state is blocked." << endl;
 			continue;
 		}
-		nExpandedStates = 0;
-		repeatedForwardAStar(maze, SIZE, &start, &goal, false);
-		outfile << "Repeated Forward A*: Number of expanded states: " << nExpandedStates << endl;
+		//nExpandedStates = 0;
+		//repeatedForwardAStar(maze, SIZE, &start, &goal, false);
+		//outfile << "Repeated Forward A*: Number of expanded states: " << nExpandedStates << endl;
 		
 		nExpandedStates = 0;
-		repeatedForwardAStar(maze, SIZE, &start, &goal, true);
-		outfile << "Adaptive A*: Number of expanded states: " << nExpandedStates << endl;
+		repeatedForwardAStar(maze, SIZE, &start, &goal, false);
+		cout << "Repeated Forward A*: Number of expanded states: " << nExpandedStates << endl;
+		//outfile << "Adaptive A*: Number of expanded states: " << nExpandedStates << endl;
 
 		nSuccessTrials++;
 	}
 
 	// clean up 
-	outfile.close();
+	//outfile.close();
 
 	for (int i = 0; i < 101; i++){
 		delete[] maze[i];

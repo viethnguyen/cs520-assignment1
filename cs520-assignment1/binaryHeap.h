@@ -99,9 +99,13 @@ int BinaryHeap::parent(int child)
 		return p;
 }
 
+bool compareStateFunction(State* a, State* b){
+	return compareStateFSmallerG(a, b);
+}
+
 void BinaryHeap::heapifyup(int in)
 {
-	if (in >= 0 && parent(in) >= 0 && compareStateFGreaterG(&heap[parent(in)], &heap[in])) 
+	if (in >= 0 && parent(in) >= 0 && compareStateFunction(&heap[parent(in)], &heap[in]))
 	{
 		State temp = heap[in];
 		heap[in] = heap[parent(in)];
@@ -114,7 +118,7 @@ void BinaryHeap::heapifydown(int in)
 {
 	int child = left(in);
 	int child1 = right(in);
-	if (child >= 0 && child1 >= 0 && compareStateFGreaterG(&heap[child], &heap[child1])){
+	if (child >= 0 && child1 >= 0 && compareStateFunction(&heap[child], &heap[child1])){
 		child = child1;
 	}
 	if (child > 0){
