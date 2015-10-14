@@ -91,19 +91,19 @@ struct coord{
 void updateCostToInf(State** S, int size, int row, int col){
 	if (row > 0){
 		S[row - 1][col].cost[DOWN] = INF;
-		S[row][col].cost[UP] = INF;
 	}
 	if (row < size - 1){
 		S[row + 1][col].cost[UP] = INF;
-		S[row][col].cost[DOWN] = INF;
 	}
 	if (col > 0){
 		S[row][col - 1].cost[RIGHT] = INF;
-		S[row][col].cost[LEFT] = INF;
 	}
 	if (col < size - 1){
 		S[row][col + 1].cost[LEFT] = INF;
-		S[row][col].cost[RIGHT] = INF;
+	}
+
+	for (int i = 0; i < 4; i++){
+		S[row][col].cost[i] = INF;
 	}
 }
 
@@ -246,10 +246,12 @@ void repeatedBackwardAStar(bool** maze, int size, State* start, State* goal){
 	}
 
 	while (!compareStatePos(start, goal)){
+		counter = counter + 1;
+
 		S[start->row][start->col].g = INF;
 		S[start->row][start->col].search = counter;
 
-		counter = counter + 1;
+	
 		S[goal->row][goal->col].g = 0;
 		S[goal->row][goal->col].h = manhattanDistance(start, goal);
 		S[goal->row][goal->col].f = goal->g + goal->h;
