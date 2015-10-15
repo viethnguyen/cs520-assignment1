@@ -123,7 +123,8 @@ void generateMazes(int nMazes){
 bool** loadMaze(int id){
 	ifstream ifs;
 	ostringstream os;
-	os << "C:/Users/Viet Nguyen/code/cs520-assignment1/x64/Debug/mazes/maze" << id << ".txt";
+	/*os << "C:/Users/Viet Nguyen/code/cs520-assignment1/x64/Debug/mazes/maze" << id << ".txt";*/
+	os << "mazes/maze" << id << ".txt";
 	//os << "mazes/maze" << id << ".txt";
 	string filename = os.str();
 	ifs.open(filename.c_str(), std::ifstream::in);
