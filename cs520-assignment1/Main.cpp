@@ -260,6 +260,20 @@ void repeatedBackwardAStar(bool** maze, int size, State* start, State* goal){
 		BinaryHeap OPEN;
 		list<State> CLOSED;
 
+		// watch 4 states around the start state to update cost, if any 
+		if (start->row > 0 && !maze[start->row - 1][start->col]){
+			updateCostToInf(S, size, start->row - 1, start->col);
+		}
+		if (start->row< size - 1 && !maze[start->row + 1][start->col]){
+			updateCostToInf(S, size, start->row + 1, start->col);
+		}
+		if (start->col > 0 && !maze[start->row][start->col - 1]){
+			updateCostToInf(S, size, start->row, start->col - 1);
+		}
+		if (start->col < size - 1 && !maze[start->row][start->col + 1]){
+			updateCostToInf(S, size, start->row, start->col + 1);
+		}
+
 		OPEN.insert(S[goal->row][goal->col]);
 		computePath(S, maze, start, &OPEN, &CLOSED, counter, size, false);
 
