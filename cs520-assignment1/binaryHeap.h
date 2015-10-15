@@ -100,7 +100,7 @@ int BinaryHeap::parent(int child)
 }
 
 bool compareStateFunction(State* a, State* b){
-	return compareStateFSmallerG(a, b);
+	return compareStateFGreaterG(a, b);
 }
 
 void BinaryHeap::heapifyup(int in)

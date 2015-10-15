@@ -327,6 +327,15 @@ void repeatedBackwardAStar(bool** maze, int size, State* start, State* goal){
 	delete[] S;
 }
 
+void printM(bool** maze, int h, int w){
+	for (int iRow = 0; iRow < h; iRow++){
+		for (int iCol = 0; iCol < w; iCol++){
+			//cout << maze[iRow][iCol].blocked;
+			cout << (maze[iRow][iCol] ? "x" : "o");
+		}
+		cout << "\n";
+	}
+}
 int main(){
 	//ofstream outfile;
 	//ostringstream os;
@@ -336,37 +345,121 @@ int main(){
 
 	int nTrials = 1;
 	int nSuccessTrials = 0; 
-	bool** maze = loadMaze(1);
-	
+
 	srand(time(NULL));
 	int SIZE = 101;
-	while (nSuccessTrials < nTrials){
-		State start, goal;
-		//start.row = rand() % SIZE;
-		//start.col = rand() % SIZE;
-		//goal.row = rand() % SIZE;
-		//goal.col = rand() % SIZE;
-		start.row = 71;
-		start.col =	 51;
-		goal.row = 65;
-		goal.col = 96;
-		//outfile << "=== Trial " << nSuccessTrials + 1 << " ===" << endl;
-		//outfile << "Find path from (" << start.row << "," << start.col << ") to (" << goal.row << "," << goal.col << ")" << endl;
-		if (maze[start.row][start.col] == false || maze[goal.row][goal.col] == false){
-			cout  << "Invalid: Either start state or end state is blocked." << endl;
-			continue;
-		}
-		//nExpandedStates = 0;
-		//repeatedForwardAStar(maze, SIZE, &start, &goal, false);
-		//outfile << "Repeated Forward A*: Number of expanded states: " << nExpandedStates << endl;
+
+	int choice; 
+	cout << "Select function:" << endl;
+	cout << "1. Print gridworld environment. " << endl;
+	cout << "2. Repeated Forward A*" << endl;
+	cout << "3. Repeated Backward A*" << endl;
+	cout << "4. Adaptive A*" << endl;
+	cout << "5. Exit" << endl;
+	cout << "Your choice: "; 
+	cin >> choice; 
+
+	int mazeNumber;
+	cout << "Maze number: ";
+	cin >> mazeNumber;
+	bool** maze = loadMaze(mazeNumber);
+
+	State start, goal;
+
+	switch (choice){
+	case 1:
+		printM(maze, SIZE, SIZE);
+		break;
+	case 2:
+		cout << "Start row: "; 
+		cin >> start.row;
+		cout << "Start col:";
+		cin >> start.col;
+		cout << "Goal row: ";
+		cin >> goal.row;
+		cout << "Goal col: ";
+		cin >> goal.col;
 		
+		if (maze[start.row][start.col] == false || maze[goal.row][goal.col] == false){
+			cout << "Invalid: Either start state or end state is blocked." << endl;
+			break;
+		}
 		nExpandedStates = 0;
 		repeatedForwardAStar(maze, SIZE, &start, &goal, false);
-		cout << "Repeated Forward A*: Number of expanded states: " << nExpandedStates << endl;
-		//outfile << "Adaptive A*: Number of expanded states: " << nExpandedStates << endl;
+		cout  << "Find path from (" << start.row << "," << start.col << ") to (" << goal.row << "," << goal.col << ")" << endl;
+		cout  << "Repeated Forward A*: Number of expanded states: " << nExpandedStates << endl;
+		break;
+	case 3:
+		cout << "Start row: ";
+		cin >> start.row;
+		cout << "Start col:";
+		cin >> start.col;
+		cout << "Goal row: ";
+		cin >> goal.row;
+		cout << "Goal col: ";
+		cin >> goal.col;
 
-		nSuccessTrials++;
+		if (maze[start.row][start.col] == false || maze[goal.row][goal.col] == false){
+			cout << "Invalid: Either start state or end state is blocked." << endl;
+			break;
+		}
+		nExpandedStates = 0;
+		repeatedBackwardAStar(maze, SIZE, &start, &goal);
+		cout << "Find path from (" << start.row << "," << start.col << ") to (" << goal.row << "," << goal.col << ")" << endl;
+		cout << "Repeated Backward A*: Number of expanded states: " << nExpandedStates << endl;
+		break;
+	case 4:
+		cout << "Start row: ";
+		cin >> start.row;
+		cout << "Start col:";
+		cin >> start.col;
+		cout << "Goal row: ";
+		cin >> goal.row;
+		cout << "Goal col: ";
+		cin >> goal.col;
+
+		if (maze[start.row][start.col] == false || maze[goal.row][goal.col] == false){
+			cout << "Invalid: Either start state or end state is blocked." << endl;
+			break;
+		}
+		nExpandedStates = 0;
+		repeatedForwardAStar(maze, SIZE, &start, &goal, true);
+		cout << "Find path from (" << start.row << "," << start.col << ") to (" << goal.row << "," << goal.col << ")" << endl;
+		cout << "Adaptive A*: Number of expanded states: " << nExpandedStates << endl;
+		break;
+	case 5:
+		break;
+	default:
+		break;
 	}
+
+	//while (nSuccessTrials < nTrials){
+	//	State start, goal;
+	//	//start.row = rand() % SIZE;
+	//	//start.col = rand() % SIZE;
+	//	//goal.row = rand() % SIZE;
+	//	//goal.col = rand() % SIZE;
+	//	start.row = 71;
+	//	start.col =	 51;
+	//	goal.row = 65;
+	//	goal.col = 96;
+	//	//outfile << "=== Trial " << nSuccessTrials + 1 << " ===" << endl;
+	//	//outfile << "Find path from (" << start.row << "," << start.col << ") to (" << goal.row << "," << goal.col << ")" << endl;
+	//	if (maze[start.row][start.col] == false || maze[goal.row][goal.col] == false){
+	//		cout  << "Invalid: Either start state or end state is blocked." << endl;
+	//		continue;
+	//	}
+	//	//nExpandedStates = 0;
+	//	//repeatedForwardAStar(maze, SIZE, &start, &goal, false);
+	//	//outfile << "Repeated Forward A*: Number of expanded states: " << nExpandedStates << endl;
+	//	
+	//	nExpandedStates = 0;
+	//	repeatedForwardAStar(maze, SIZE, &start, &goal, false);
+	//	cout << "Repeated Forward A*: Number of expanded states: " << nExpandedStates << endl;
+	//	//outfile << "Adaptive A*: Number of expanded states: " << nExpandedStates << endl;
+
+	//	nSuccessTrials++;
+	//}
 
 	// clean up 
 	//outfile.close();
